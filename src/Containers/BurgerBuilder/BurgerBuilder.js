@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import Auxi from '../../hoc/Auxi';
 import Burger from '../../Components/Burger/Burger';
 import BuildControls from '../../Components/Burger/BuildControls/BuildControls';
+import Modal from '../../Components/UI/Modal/Modal';
+import OrderSummary from '../../Components/OrderSummary/OrderSummary';
 
 const INGREDIENT_COST = {
     salad: 0.5,
@@ -19,7 +21,8 @@ class BurgerBuilder extends Component{
             cheese : 0
         },
         totalCost : 4,
-        purchasable : false
+        purchasable : false,
+        purchasing : false
     }
     updatePurchaseState (ingredients) {
         const sum = Object.keys( ingredients )
@@ -63,7 +66,9 @@ class BurgerBuilder extends Component{
         });
         this.updatePurchaseState(updateIngredients);
     }
-    
+    purchaseHandler = () => {
+        this.setState({purchasing:true});
+    }
     render(){
         const disableInfo = {...this.state.ingredients};
         for(let key in disableInfo)
@@ -72,12 +77,16 @@ class BurgerBuilder extends Component{
         }
         return(
             <Auxi>
+                <Modal show={this.state.purchasing}>
+                    <OrderSummary ingredients={this.state.ingredients}/>
+                </Modal>
                 <Burger ingredients={this.state.ingredients}/>
                 <BuildControls ingredientAdded = {this.addIngredientHandler} 
                 ingredientRemoved = {this.removeIngredientHandler} 
                 disabled = {disableInfo}
                 price = {this.state.totalCost}
-                purchasable={this.state.purchasable}/>
+                purchasable={this.state.purchasable}
+                ordering = {this.purchaseHandler}/>
             </Auxi>
         );
     }
