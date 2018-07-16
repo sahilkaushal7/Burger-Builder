@@ -69,6 +69,13 @@ class BurgerBuilder extends Component{
     purchaseHandler = () => {
         this.setState({purchasing:true});
     }
+    closeBackdropHandler = () => {
+        this.setState({purchasing:false});
+    }
+    onOrderRecieveHandler = () => {
+        alert('Order is Placed! Be Patient');
+        this.setState({purchasing:false});
+    }
     render(){
         const disableInfo = {...this.state.ingredients};
         for(let key in disableInfo)
@@ -77,8 +84,9 @@ class BurgerBuilder extends Component{
         }
         return(
             <Auxi>
-                <Modal show={this.state.purchasing}>
-                    <OrderSummary ingredients={this.state.ingredients}/>
+                <Modal show={this.state.purchasing} close={this.closeBackdropHandler}>
+                    <OrderSummary ingredients={this.state.ingredients} cancel={this.closeBackdropHandler}
+                    continue={this.onOrderRecieveHandler} price={this.state.totalCost}/>
                 </Modal>
                 <Burger ingredients={this.state.ingredients}/>
                 <BuildControls ingredientAdded = {this.addIngredientHandler} 
