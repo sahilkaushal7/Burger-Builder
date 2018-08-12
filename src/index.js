@@ -4,5 +4,10 @@ import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import { BrowserRouter } from 'react-router-dom';
-ReactDOM.render(<BrowserRouter><App /></BrowserRouter>, document.getElementById('root'));
+import { Provider } from "react-redux";
+import rootReducer from './Store/reducer';
+import { createStore } from 'redux';
+
+const store = createStore(rootReducer);
+ReactDOM.render(<Provider store={store}><BrowserRouter><App /></BrowserRouter></Provider>, document.getElementById('root'));
 registerServiceWorker();
