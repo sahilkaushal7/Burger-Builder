@@ -4,17 +4,18 @@ import Burger from '../../Components/Burger/Burger';
 import BuildControls from '../../Components/Burger/BuildControls/BuildControls';
 import Modal from '../../Components/UI/Modal/Modal';
 import OrderSummary from '../../Components/OrderSummary/OrderSummary';
-import axios from '../../axios-order';
 import Spinner from '../../Components/UI/Spinner/Spinner';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import { connect } from "react-redux";
-import * as actionVariable from "../../Store/actionVariables";
+import * as actions from '../../Store/actions/index';
+import axios from '../../axios-order';
 
 class BurgerBuilder extends Component{
     state = {
         purchasing : false,
-        loading : false,
-        error : false
+    }
+    componentDidMount () {
+        this.props.onInitIngredient();
     }
     updatePurchaseState (ingredients) {
         const sum = Object.keys( ingredients )
@@ -33,6 +34,7 @@ class BurgerBuilder extends Component{
         this.setState({purchasing:false});
     }
     onOrderRecieveHandler = () => {
+        this.props.onInitPurchase();
         this.props.history.push('/checkout');
     }
     render(){
@@ -42,7 +44,7 @@ class BurgerBuilder extends Component{
             disableInfo[key] = disableInfo[key] <= 0
         }
         let orderSummary = null; 
-        let burger = this.state.error?<p style={{textAlign:'center'}}>Ingredients can't be loaded</p>:<Spinner/>
+        let burger = this.props.error?<p style={{textAlign:'center'}}>Ingredients can't be loaded</p>:<Spinner/>
         if(this.props.ingredientsFromRedux)
         {
             burger = (<Auxi>
@@ -57,10 +59,6 @@ class BurgerBuilder extends Component{
             orderSummary=<OrderSummary ingredients={this.props.ingredientsFromRedux} cancel={this.closeBackdropHandler}
             continue={this.onOrderRecieveHandler} price={this.props.totalCostFromRedux}/>
         }
-        if(this.state.loading)
-        {
-            orderSummary = <Spinner/>
-        }
         return(
             <Auxi>
                 <Modal show={this.state.purchasing} close={this.closeBackdropHandler}>
@@ -73,14 +71,17 @@ class BurgerBuilder extends Component{
 }
 const mapStateWithProps = state=> {
     return{
-        ingredientsFromRedux : state.ingredients,
-        totalCostFromRedux : state.totalCost
+        ingredientsFromRedux : state.burgerBuilder.ingredients,
+        totalCostFromRedux : state.burgerBuilder.totalCost,
+        error : state.burgerBuilder.error
     };  
 }
 const mapDispatchToProps = dispatch => {
     return{
-        addIngredientHandlerFromRedux : (ingName) => dispatch({type:actionVariable.ADD_INGREDIENT,ingredientName : ingName}),
-        removeIngredientHandlerFromRedux : (ingName) => dispatch({type:actionVariable.REMOVE_INGREDIENT,ingredientName:ingName})
+        addIngredientHandlerFromRedux : (ingName) => dispatch(actions.addIngredient(ingName)),
+        removeIngredientHandlerFromRedux : (ingName) => dispatch(actions.removeIngredient(ingName)),
+        onInitIngredient : ()  => dispatch(actions.initIngredients()),
+        onInitPurchase : () => dispatch(actions.purchaseInit()) 
     }
 }
 
